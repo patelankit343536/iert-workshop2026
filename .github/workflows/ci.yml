@@ -1,0 +1,39 @@
+name: CI Build and Test Pipeline
+
+# VULNERABLE PATTERN 2: pull_request_target triggers with repository write access and secrets
+on:
+  pull_request_target:
+    branches: [main]
+  push:
+    branches: [main]
+
+# VULNERABLE PATTERN 1: Over-permissive repository permissions
+permissions: write-all
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      # VULNERABLE PATTERN 3: Mutable action reference instead of 40-character SHA
+      # Combined with unsafe checkout of untrusted pull request head SHA
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Check Changed Files
+        uses: tj-actions/changed-files@v45
+        id: changed-files
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run Build
+        run: npm run build
