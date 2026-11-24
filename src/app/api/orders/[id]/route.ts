@@ -32,6 +32,12 @@ export async function GET(
     if (!order) {
       return NextResponse.json({ error: "Order not found" }, { status: 404, headers: createCorsHeaders() });
     }
+ if (order.user_id !== currentUser.id && currentUser.role !== "admin") {
+  return NextResponse.json( 
+    { error: "Forbidden: You do not have permission to view this order" },
+    { status: 403, headers: createCorsHeaders() }
+      );
+    }
 
     // VULNERABLE: Returns order regardless of whether order.user_id === currentUser.id
     return NextResponse.json(
