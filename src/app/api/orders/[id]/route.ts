@@ -37,7 +37,8 @@ export async function GET(
     { error: "Forbidden: You do not have permission to view this order" },
     { status: 403, headers: createCorsHeaders() }
       );
-    }
+    } 
+
 
     // VULNERABLE: Returns order regardless of whether order.user_id === currentUser.id
     return NextResponse.json(
